@@ -11,7 +11,6 @@ export default function AdminPortal({
   partnerName, setPartnerName,
   partnerRole, setPartnerRole,
   partnerAvatar, setPartnerAvatar,
-  partnerLogoUrl, setPartnerLogoUrl,
   bkashNumber, setBkashNumber,
   nagadNumber, setNagadNumber,
   imoNumber, setImoNumber,
@@ -386,9 +385,9 @@ export default function AdminPortal({
               </div>
 
               <div className="bg-[#041E18] border border-amber-500/30 rounded-2xl p-5 space-y-5">
-                <h3 className="text-xs text-amber-300 font-bold">২. নিচে আরিয়ান চৌধুরীর প্রোফাইল ছবি ও পাশের লোগো আপলোড করুন</h3>
+                <h3 className="text-xs text-amber-300 font-bold">২. নিচে আরিয়ান চৌধুরীর প্রোফাইল ছবি আপলোড করুন</h3>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div className="bg-black/30 border border-amber-500/20 rounded-xl p-4 space-y-3">
                     <span className="block text-[11px] text-gray-300 font-semibold">আরিয়ান চৌধুরীর প্রোফাইল ছবি</span>
                     <div className="flex items-center gap-3">
@@ -396,17 +395,6 @@ export default function AdminPortal({
                       <label className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-3 py-2 rounded-xl text-xs cursor-pointer inline-flex items-center gap-1.5">
                         <Upload size={14} /> ছবি আপলোড
                         <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, setPartnerAvatar)} />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="bg-black/30 border border-amber-500/20 rounded-xl p-4 space-y-3">
-                    <span className="block text-[11px] text-gray-300 font-semibold">আরিয়ান চৌধুরীর পাশের লোগো</span>
-                    <div className="flex items-center gap-3">
-                      <img src={partnerLogoUrl} alt="Partner Badge Logo" className="w-14 h-14 rounded-full border-2 border-amber-400 object-cover bg-black p-0.5" />
-                      <label className="bg-amber-500 hover:bg-amber-400 text-black font-bold px-3 py-2 rounded-xl text-xs cursor-pointer inline-flex items-center gap-1.5">
-                        <Upload size={14} /> লোগো আপলোড
-                        <input type="file" accept="image/*" className="hidden" onChange={e => handleFileUpload(e, setPartnerLogoUrl)} />
                       </label>
                     </div>
                   </div>

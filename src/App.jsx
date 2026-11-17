@@ -26,6 +26,19 @@ export default function App() {
     };
   }, []);
 
+  // Load Google Identity Services script dynamically for real device email account picker
+  useEffect(() => {
+    const scriptId = 'google-signin-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   // Real-time synchronization via storage event listener
   useEffect(() => {
     const handleStorageSync = (e) => {
@@ -36,7 +49,6 @@ export default function App() {
         setPartnerName(localStorage.getItem('glo_partnerName') || 'Ariyan chaudhari');
         setPartnerRole(localStorage.getItem('glo_partnerRole') || 'Authorized VIP Distributor & Official Analyst');
         setPartnerAvatar(localStorage.getItem('glo_partnerAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
-        setPartnerLogoUrl(localStorage.getItem('glo_partnerLogoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
         setBkashNumber(localStorage.getItem('glo_bkash') || '01700-000000 (Personal)');
         setNagadNumber(localStorage.getItem('glo_nagad') || '01800-000000 (Personal)');
         setImoNumber(localStorage.getItem('glo_imo') || '+8801700000000');
@@ -58,6 +70,10 @@ export default function App() {
         if (savedReviews) {
           try { setReviews(JSON.parse(savedReviews)); } catch (err) {}
         }
+        const savedTickers = localStorage.getItem('glo_liveTickers');
+        if (savedTickers) {
+          try { setLiveTickers(JSON.parse(savedTickers)); } catch (err) {}
+        }
       }
     };
     window.addEventListener('storage', handleStorageSync);
@@ -71,7 +87,6 @@ export default function App() {
   const [partnerName, setPartnerName] = useState(() => localStorage.getItem('glo_partnerName') || 'Ariyan chaudhari');
   const [partnerRole, setPartnerRole] = useState(() => localStorage.getItem('glo_partnerRole') || 'Authorized VIP Distributor & Official Analyst');
   const [partnerAvatar, setPartnerAvatar] = useState(() => localStorage.getItem('glo_partnerAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
-  const [partnerLogoUrl, setPartnerLogoUrl] = useState(() => localStorage.getItem('glo_partnerLogoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
 
   const [bkashNumber, setBkashNumber] = useState(() => localStorage.getItem('glo_bkash') || '01700-000000 (Personal)');
   const [nagadNumber, setNagadNumber] = useState(() => localStorage.getItem('glo_nagad') || '01800-000000 (Personal)');
@@ -98,6 +113,15 @@ export default function App() {
   const [pendingPayments, setPendingPayments] = useState([
     { id: 1, name: 'Rafiqul Islam', email: 'rafiqul.official@gmail.com', last4: '4829', method: 'bKash', amountSar: 125, amountBdt: 4000, time: '2026-11-20 14:35:00', status: 'Pending' }
   ]);
+
+  // Live Purchase Ticker (strictly real purchases only, default empty array if none)
+  const [liveTickers, setLiveTickers] = useState(() => {
+    const saved = localStorage.getItem('glo_liveTickers');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+    }
+    return [];
+  });
 
   const [pastPapers, setPastPapers] = useState(() => {
     const saved = localStorage.getItem('glo_pastPapers');
@@ -149,7 +173,6 @@ export default function App() {
       localStorage.setItem('glo_partnerName', partnerName);
       localStorage.setItem('glo_partnerRole', partnerRole);
       localStorage.setItem('glo_partnerAvatar', partnerAvatar);
-      localStorage.setItem('glo_partnerLogoUrl', partnerLogoUrl);
       localStorage.setItem('glo_bkash', bkashNumber);
       localStorage.setItem('glo_nagad', nagadNumber);
       localStorage.setItem('glo_imo', imoNumber);
@@ -161,13 +184,14 @@ export default function App() {
       localStorage.setItem('glo_upcomingImg', upcomingPaperImage);
       localStorage.setItem('glo_pastPapers', JSON.stringify(pastPapers));
       localStorage.setItem('glo_reviews', JSON.stringify(reviews));
+      localStorage.setItem('glo_liveTickers', JSON.stringify(liveTickers));
     } catch (e) {
       console.warn('LocalStorage quota reached');
     }
   }, [
     brandTitle, brandSubtitle, logoUrl, partnerName, partnerRole, partnerAvatar, 
-    partnerLogoUrl, bkashNumber, nagadNumber, imoNumber, noticeText, drawDateText, 
-    countdownTarget, sarPrice, bdtPrice, upcomingPaperImage, pastPapers, reviews
+    bkashNumber, nagadNumber, imoNumber, noticeText, drawDateText, 
+    countdownTarget, sarPrice, bdtPrice, upcomingPaperImage, pastPapers, reviews, liveTickers
   ]);
 
   useEffect(() => {
@@ -197,7 +221,6 @@ export default function App() {
         partnerName={partnerName} setPartnerName={setPartnerName}
         partnerRole={partnerRole} setPartnerRole={setPartnerRole}
         partnerAvatar={partnerAvatar} setPartnerAvatar={setPartnerAvatar}
-        partnerLogoUrl={partnerLogoUrl} setPartnerLogoUrl={setPartnerLogoUrl}
         bkashNumber={bkashNumber} setBkashNumber={setBkashNumber}
         nagadNumber={nagadNumber} setNagadNumber={setNagadNumber}
         imoNumber={imoNumber} setImoNumber={setImoNumber}
@@ -216,16 +239,53 @@ export default function App() {
     );
   }
 
-  const handleGoogleLoginSimulate = () => {
-    const randomNames = ['Imran Khan', 'Abdul Rahim', 'Nasir Uddin', 'Kamal Hossain', 'Sumon Ahmed'];
-    const name = randomNames[Math.floor(Math.random() * randomNames.length)];
-    const email = name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 900 + 100) + '@gmail.com';
-    const userObj = { name, email, photo: partnerAvatar };
+  // Real Google account chooser using native Google Identity Services & device account prompt
+  const handleGoogleLoginReal = () => {
+    if (window.google && window.google.accounts) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+          callback: (response) => {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const profile = JSON.parse(jsonPayload);
+            const userObj = { name: profile.name, email: profile.email, photo: profile.picture || partnerAvatar };
+            setCurrentUser(userObj);
+            setIsLoginModalOpen(false);
+            setLoginHistory([{ name: profile.name, email: profile.email, time: new Date().toLocaleString() }, ...loginHistory]);
+          }
+        });
+        window.google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            promptRealGmailInput();
+          }
+        });
+      } catch (err) {
+        promptRealGmailInput();
+      }
+    } else {
+      promptRealGmailInput();
+    }
+  };
+
+  const promptRealGmailInput = () => {
+    const realEmail = prompt("আপনার ফোনের আসল জিমেইল অ্যাকাউন্ট (Real Gmail Address) লিখুন:", "");
+    if (!realEmail || !realEmail.includes('@') || !realEmail.toLowerCase().includes('gmail.com')) {
+      if (realEmail !== null) alert('দয়া করে আপনার একটি সঠিক জিমেইল অ্যাকাউন্ট দিন। কোনো ডেমো জিমেইল গ্রহণযোগ্য নয়।');
+      return;
+    }
+    const realName = prompt("আপনার আসল নাম লিখুন:", realEmail.split('@')[0]);
+    const userObj = {
+      name: realName || 'Verified User',
+      email: realEmail,
+      photo: `https://api.dicebear.com/7.x/avataaars/svg?seed=${realEmail}`
+    };
     setCurrentUser(userObj);
     setIsLoginModalOpen(false);
-
-    const newRecord = { name, email, time: new Date().toLocaleString() };
-    setLoginHistory([newRecord, ...loginHistory]);
+    setLoginHistory([{ name: userObj.name, email: userObj.email, time: new Date().toLocaleString() }, ...loginHistory]);
   };
 
   const handleCopy = (text) => {
@@ -255,6 +315,17 @@ export default function App() {
       status: 'Pending'
     };
     setPendingPayments([newPayment, ...pendingPayments]);
+
+    // Add to live purchase ticker immediately upon successful payment submission
+    const newTicker = {
+      id: Date.now(),
+      name: currentUser.name,
+      amountSar: sarPrice,
+      amountBdt: bdtPrice,
+      time: new Date().toLocaleTimeString()
+    };
+    setLiveTickers([newTicker, ...liveTickers]);
+
     setIsPaymentModalOpen(false);
     setSenderLast4('');
     alert('পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর পেপার আনলক করা হবে।');
@@ -354,19 +425,24 @@ export default function App() {
             <div className="text-center space-y-3 w-full">
               <Crown size={40} className="text-amber-400 mx-auto animate-bounce" />
               <h3 className="text-xl font-bold text-amber-200">Live VIP Purchase Ticker</h3>
-              <div className="bg-[#031410] border border-amber-500/30 rounded-xl p-4 text-left w-full space-y-3 text-xs">
-                <div className="flex items-center justify-between border-b border-gray-800 pb-2">
-                  <span className="text-gray-300 font-semibold">👤 Al-Amin (Dhaka)</span>
-                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-gray-800 pb-2">
-                  <span className="text-gray-300 font-semibold">👤 Jahangir (Riyadh)</span>
-                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-semibold">👤 Belal Hossain (Chittagong)</span>
-                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
-                </div>
+              
+              <div className="bg-[#031410] border border-amber-500/30 rounded-xl p-4 text-left w-full space-y-3 text-xs min-h-[120px] flex flex-col justify-center">
+                {liveTickers.length === 0 ? (
+                  <div className="text-center text-gray-400 py-4 space-y-1">
+                    <p className="font-semibold text-amber-300/80">কোনো পারচেস হিস্ট্রি নেই</p>
+                    <p className="text-[11px]">কেউ পেপার পারচেস করলেই এখানে লাইভ দেখাবে।</p>
+                  </div>
+                ) : (
+                  liveTickers.slice(0, 5).map((t, idx) => (
+                    <div key={idx} className="flex items-center justify-between border-b border-gray-800 pb-2 last:border-b-0 last:pb-0">
+                      <span className="text-gray-200 font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        👤 {t.name}
+                      </span>
+                      <span className="text-amber-400 font-bold">{t.amountSar} SAR | ৳ {t.amountBdt.toLocaleString()} BDT</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -604,10 +680,7 @@ export default function App() {
               <div className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
                 <ShieldCheck size={12} /> Authorized VIP Partner
               </div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-extrabold text-white text-base">{partnerName}</h4>
-                <img src={partnerLogoUrl} alt="Partner Official Logo" className="w-6 h-6 rounded-full border border-amber-400 object-cover bg-black p-0.5" />
-              </div>
+              <h4 className="font-extrabold text-white text-base">{partnerName}</h4>
               <p className="text-xs text-amber-300/80 font-medium">{partnerRole}</p>
             </div>
           </div>
@@ -627,12 +700,12 @@ export default function App() {
             </button>
             <div className="text-center space-y-2">
               <Crown size={36} className="text-amber-400 mx-auto" />
-              <h3 className="text-xl font-bold text-white">Sign in to VIP Portal</h3>
-              <p className="text-xs text-gray-300">Select your Google account to continue to the secure lottery vault.</p>
+              <h3 className="text-xl font-bold text-white">Sign in with Real Gmail</h3>
+              <p className="text-xs text-gray-300">কোনো ডেমো জিমেইল ব্যবহার করা যাবে না। আপনার ফোনের আসল জিমেইল অ্যাকাউন্ট দিয়ে সাইন ইন করুন।</p>
             </div>
 
             <button 
-              onClick={handleGoogleLoginSimulate}
+              onClick={handleGoogleLoginReal}
               className="w-full bg-white hover:bg-gray-100 text-black font-bold py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all text-sm"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -641,8 +714,9 @@ export default function App() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              Continue with Google Account
+              Continue with Real Google Account
             </button>
+            <p className="text-[10px] text-center text-amber-300">বাটনে ক্লিক করলে আপনার ডিভাইস থেকে সঠিক জিমেইল অ্যাকাউন্ট সিলেক্ট করার অপশন আসবে।</p>
           </div>
         </div>
       )}
@@ -742,7 +816,7 @@ export default function App() {
             </div>
             <div className="text-center">
               <span className="bg-black/60 border border-amber-500/40 text-amber-300 font-mono text-sm px-4 py-2 rounded-xl inline-block">
-                Winning 3UP: <strong>{zoomImage.up3}</strong> | DOWN: <strong>{zoomImage.down}</strong>
+                Winning 3UP: <strong>{zoomImage.up3} | DOWN: {zoomImage.down}</strong>
               </span>
             </div>
           </div>
