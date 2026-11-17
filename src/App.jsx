@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShieldCheck, Lock, Unlock, Crown, Sparkles, Copy, CheckCircle, 
-  Phone, Globe, Star, ZoomIn, X, Award, Bell, ExternalLink, LogOut
+  Lock, Unlock, Crown, ZoomIn, X, Bell, LogOut, Globe
 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import AdminPortal from './AdminPortal';
@@ -25,16 +24,11 @@ export default function App() {
     };
   }, []);
 
-  // Supabase থেকে রিয়েল-টাইম ডেটা লোড করার স্টেট
   const [brandTitle, setBrandTitle] = useState('Thailand Government Lottery');
   const [brandSubtitle, setBrandSubtitle] = useState('สำนักงานสลากกินแบ่งรัฐบาล • Official Portal');
   const [logoUrl, setLogoUrl] = useState('https://www.glo.or.th/assets/img/logo.png');
-  const [partnerName, setPartnerName] = useState('Ariyan chaudhari');
-  const [partnerRole, setPartnerRole] = useState('Authorized VIP Distributor & Official Analyst');
-  const [partnerAvatar, setPartnerAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
   const [bkashNumber, setBkashNumber] = useState('01700-000000 (Personal)');
   const [nagadNumber, setNagadNumber] = useState('01800-000000 (Personal)');
-  const [imoNumber, setImoNumber] = useState('+8801700000000');
   const [noticeText, setNoticeText] = useState('⚠️ বিশেষ ঘোষণা: আগামী ১৬ ডিসেম্বর ড্র-এর ১০০% নিশ্চিত ভিআইপি পেপার বুকিং চলছে।');
   const [drawDateText, setDrawDateText] = useState('16 December 2026');
   const [countdownTarget, setCountdownTarget] = useState('2026-12-16T16:00:00');
@@ -51,15 +45,12 @@ export default function App() {
 
   const [liveTickers, setLiveTickers] = useState([]);
   const [pastPapers, setPastPapers] = useState([]);
-  const [reviews, setReviews] = useState([]);
   const [zoomImage, setZoomImage] = useState(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // অ্যাপ লোড হওয়ার সময় Supabase থেকে ডেটা এবং ইউজার সেশন চেক করা
   useEffect(() => {
     fetchDataFromSupabase();
 
-    // Supabase Auth স্টেট চেক করা (গুগল লগইন করার পর ফিরে আসলে ইউজার ধরে রাখার জন্য)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setCurrentUser({
@@ -95,12 +86,8 @@ export default function App() {
           if (item.key === 'brandTitle') setBrandTitle(item.value);
           if (item.key === 'brandSubtitle') setBrandSubtitle(item.value);
           if (item.key === 'logoUrl') setLogoUrl(item.value);
-          if (item.key === 'partnerName') setPartnerName(item.value);
-          if (item.key === 'partnerRole') setPartnerRole(item.value);
-          if (item.key === 'partnerAvatar') setPartnerAvatar(item.value);
           if (item.key === 'bkash') setBkashNumber(item.value);
           if (item.key === 'nagad') setNagadNumber(item.value);
-          if (item.key === 'imo') setImoNumber(item.value);
           if (item.key === 'notice') setNoticeText(item.value);
           if (item.key === 'drawDate') setDrawDateText(item.value);
           if (item.key === 'countdown') setCountdownTarget(item.value);
@@ -112,9 +99,6 @@ export default function App() {
 
       const { data: pastData } = await supabase.from('past_papers').select('*').order('id', { ascending: false });
       if (pastData) setPastPapers(pastData);
-
-      const { data: revData } = await supabase.from('reviews').select('*').eq('status', 'Approved').order('id', { ascending: false });
-      if (revData) setReviews(revData);
 
       const { data: payData } = await supabase.from('payments').select('*').eq('status', 'Approved').order('id', { ascending: false });
       if (payData) {
@@ -151,7 +135,6 @@ export default function App() {
     return <AdminPortal supabase={supabase} />;
   }
 
-  // রিয়েল গুগল সাইন-ইন ফাংশন (Supabase OAuth)
   const handleGoogleLoginReal = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -164,8 +147,6 @@ export default function App() {
         alert('গুগল লগইন করতে সমস্যা হয়েছে: ' + error.message);
       }
     } catch (err) {
-      console.error('Login error:', err);
-      // ফলব্যাক হিসেবে ম্যানুয়াল ইনপুট রাখা হলো
       const realEmail = prompt("আপনার আসল জিমেইল অ্যাকাউন্ট (Real Gmail Address) লিখুন:", "");
       if (!realEmail || !realEmail.includes('@') || !realEmail.toLowerCase().includes('gmail.com')) {
         if (realEmail !== null) alert('দয়া করে আপনার একটি সঠিক জিমেইল অ্যাকাউন্ট দিন।');
