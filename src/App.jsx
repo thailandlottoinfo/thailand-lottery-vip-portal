@@ -244,7 +244,7 @@ export default function App() {
     if (window.google && window.google.accounts) {
       try {
         window.google.accounts.id.initialize({
-          client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+          client_id: 'YOUR_GOOGLE_CLIENT_ID.209549174099-872efgpmkg2qqdm8jgc5rnk6nh58pe0b.apps.googleusercontent.com',
           callback: (response) => {
             const base64Url = response.credential.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
