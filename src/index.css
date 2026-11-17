@@ -2,34 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
-
-.animate-shimmer {
-  animation: shimmer 2.5s infinite;
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 28s linear infinite;
 }
-
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.7); }
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 3s infinite;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #020c0a;
-}
-::-webkit-scrollbar-thumb {
-  background: #d4af37;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #f3e5ab;
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
