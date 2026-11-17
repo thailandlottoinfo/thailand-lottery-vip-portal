@@ -6,7 +6,6 @@ import {
 import AdminPortal from './AdminPortal';
 
 export default function App() {
-  // Detect separate Admin URL (/admin or #admin)
   const checkIsAdminRoute = () => {
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
@@ -27,7 +26,44 @@ export default function App() {
     };
   }, []);
 
-  // Persistent States with LocalStorage
+  // Real-time synchronization via storage event listener
+  useEffect(() => {
+    const handleStorageSync = (e) => {
+      if (e.key && e.key.startsWith('glo_')) {
+        setBrandTitle(localStorage.getItem('glo_brandTitle') || 'Thailand Government Lottery');
+        setBrandSubtitle(localStorage.getItem('glo_brandSubtitle') || 'สำนักงานสลากกินแบ่งรัฐบาล • Official Portal');
+        setLogoUrl(localStorage.getItem('glo_logoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
+        setPartnerName(localStorage.getItem('glo_partnerName') || 'Ariyan chaudhari');
+        setPartnerRole(localStorage.getItem('glo_partnerRole') || 'Authorized VIP Distributor & Official Analyst');
+        setPartnerAvatar(localStorage.getItem('glo_partnerAvatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300');
+        setPartnerLogoUrl(localStorage.getItem('glo_partnerLogoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
+        setBkashNumber(localStorage.getItem('glo_bkash') || '01700-000000 (Personal)');
+        setNagadNumber(localStorage.getItem('glo_nagad') || '01800-000000 (Personal)');
+        setImoNumber(localStorage.getItem('glo_imo') || '+8801700000000');
+        setNoticeText(localStorage.getItem('glo_notice') || '⚠️ বিশেষ ঘোষণা: আগামী ১৬ ডিসেম্বর ড্র-এর ১০০% নিশ্চিত ভিআইপি পেপার বুকিং চলছে। বিকাশ বা নগদ সেন্ড মনি করে শেষ ৪ ডিজিট দিয়ে পেপার আনলক করুন।');
+        setDrawDateText(localStorage.getItem('glo_drawDate') || '16 December 2026');
+        setCountdownTarget(localStorage.getItem('glo_countdown') || '2026-12-16T16:00:00');
+        const sPrice = localStorage.getItem('glo_sarPrice');
+        if (sPrice) setSarPrice(Number(sPrice));
+        const bPrice = localStorage.getItem('glo_bdtPrice');
+        if (bPrice) setBdtPrice(Number(bPrice));
+        const upImg = localStorage.getItem('glo_upcomingImg');
+        if (upImg) setUpcomingPaperImage(upImg);
+        
+        const savedPapers = localStorage.getItem('glo_pastPapers');
+        if (savedPapers) {
+          try { setPastPapers(JSON.parse(savedPapers)); } catch (err) {}
+        }
+        const savedReviews = localStorage.getItem('glo_reviews');
+        if (savedReviews) {
+          try { setReviews(JSON.parse(savedReviews)); } catch (err) {}
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageSync);
+    return () => window.removeEventListener('storage', handleStorageSync);
+  }, []);
+
   const [brandTitle, setBrandTitle] = useState(() => localStorage.getItem('glo_brandTitle') || 'Thailand Government Lottery');
   const [brandSubtitle, setBrandSubtitle] = useState(() => localStorage.getItem('glo_brandSubtitle') || 'สำนักงานสลากกินแบ่งรัฐบาล • Official Portal');
   const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('glo_logoUrl') || 'https://www.glo.or.th/assets/img/logo.png');
@@ -63,36 +99,48 @@ export default function App() {
     { id: 1, name: 'Rafiqul Islam', email: 'rafiqul.official@gmail.com', last4: '4829', method: 'bKash', amountSar: 125, amountBdt: 4000, time: '2026-11-20 14:35:00', status: 'Pending' }
   ]);
 
-  const [pastPapers, setPastPapers] = useState([
-    { 
-      id: 1, 
-      date: '16 พฤศจิกายน 69 (16 Nov 2026)', 
-      image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800', 
-      up3: '654', 
-      down: '82', 
-      caption: '100% Direct Winning VIP Paper Proof (16 Nov 2026)' 
-    },
-    { 
-      id: 2, 
-      date: '01 พฤศจิกายน 69 (01 Nov 2026)', 
-      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800', 
-      up3: '308', 
-      down: '45', 
-      caption: 'Direct Hit VIP Paper (01 Nov 2026)' 
+  const [pastPapers, setPastPapers] = useState(() => {
+    const saved = localStorage.getItem('glo_pastPapers');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
     }
-  ]);
+    return [
+      { 
+        id: 1, 
+        date: '16 พฤศจิกายน 69 (16 Nov 2026)', 
+        image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800', 
+        up3: '654', 
+        down: '82', 
+        caption: '100% Direct Winning VIP Paper Proof (16 Nov 2026)' 
+      },
+      { 
+        id: 2, 
+        date: '01 พฤศจิกายน 69 (01 Nov 2026)', 
+        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800', 
+        up3: '308', 
+        down: '45', 
+        caption: 'Direct Hit VIP Paper (01 Nov 2026)' 
+      }
+    ];
+  });
 
-  const [reviews, setReviews] = useState([
-    { id: 1, name: 'Nazmul Hossain', rating: 5, comment: 'আলহামদুলিল্লাহ, ভিআইপি পেপার নিয়ে প্রথমবারেই সরাসরি ৩UP উইন করেছি। অনেক ধন্যবাদ আরিয়ান ভাই!', status: 'Approved' },
-    { id: 2, name: 'Jahangir Alam', rating: 5, comment: 'খুব বিশ্বস্ত সার্ভিস। পেমেন্ট করার ৫ মিনিটের মধ্যে পেপার পেয়ে গেছি।', status: 'Approved' }
-  ]);
+  const [reviews, setReviews] = useState(() => {
+    const saved = localStorage.getItem('glo_reviews');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* fallback */ }
+    }
+    return [
+      { id: 1, name: 'Nazmul Hossain', rating: 5, comment: 'আলহামদুলিল্লাহ, ভিআইপি পেপার নিয়ে প্রথমবারেই সরাসরি ৩UP উইন করেছি। অনেক ধন্যবাদ আরিয়ান ভাই!', status: 'Approved' },
+      { id: 2, name: 'Jahangir Alam', rating: 5, comment: 'খুব বিশ্বস্ত সার্ভিস। পেমেন্ট করার ৫ মিনিটের মধ্যে পেপার পেয়ে গেছি।', status: 'Approved' }
+    ];
+  });
+
   const [newReviewName, setNewReviewName] = useState('');
   const [newReviewComment, setNewReviewComment] = useState('');
 
   const [zoomImage, setZoomImage] = useState(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Persist updates to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('glo_brandTitle', brandTitle);
@@ -111,13 +159,15 @@ export default function App() {
       localStorage.setItem('glo_sarPrice', String(sarPrice));
       localStorage.setItem('glo_bdtPrice', String(bdtPrice));
       localStorage.setItem('glo_upcomingImg', upcomingPaperImage);
+      localStorage.setItem('glo_pastPapers', JSON.stringify(pastPapers));
+      localStorage.setItem('glo_reviews', JSON.stringify(reviews));
     } catch (e) {
       console.warn('LocalStorage quota reached');
     }
   }, [
     brandTitle, brandSubtitle, logoUrl, partnerName, partnerRole, partnerAvatar, 
     partnerLogoUrl, bkashNumber, nagadNumber, imoNumber, noticeText, drawDateText, 
-    countdownTarget, sarPrice, bdtPrice, upcomingPaperImage
+    countdownTarget, sarPrice, bdtPrice, upcomingPaperImage, pastPapers, reviews
   ]);
 
   useEffect(() => {
@@ -138,7 +188,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, [countdownTarget]);
 
-  // If URL is /admin or #admin, render ONLY the dedicated Admin Portal (completely isolated from Viewer page)
   if (isAdminRoute) {
     return (
       <AdminPortal
@@ -211,11 +260,8 @@ export default function App() {
     alert('পেমেন্ট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করার পর পেপার আনলক করা হবে।');
   };
 
-  // Pure Viewer Landing Page (zero admin UI or links)
   return (
     <div className="min-h-screen bg-[#031410] text-gray-100 font-sans selection:bg-amber-500 selection:text-black">
-      
-      {/* 1. Top Scrolling Notice Bar */}
       <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-black font-bold text-sm py-2 overflow-hidden shadow-md relative z-40">
         <div className="flex whitespace-nowrap animate-marquee items-center">
           <span className="mx-4 flex items-center gap-2"><Bell size={16} /> {noticeText}</span>
@@ -224,7 +270,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 2. Top Header with Thailand Government Lottery Logo */}
       <header className="bg-[#041E18]/90 backdrop-blur-md border-b border-amber-500/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
           
@@ -275,10 +320,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-12">
-        
-        {/* Hero Section & Live Countdown */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-gradient-to-br from-[#062C22] to-[#041E18] p-6 md:p-10 rounded-3xl border border-amber-500/30 shadow-2xl relative overflow-hidden">
           <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -330,7 +372,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Upcoming VIP Paper Section */}
         <section className="bg-gradient-to-b from-[#062C22] to-[#041E18] border border-amber-500/40 rounded-3xl p-6 md:p-10 shadow-2xl">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-8">
             <span className="text-xs uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
@@ -393,7 +434,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Past Games Winning Archive */}
         <section className="space-y-8">
           <div className="text-center space-y-3">
             <span className="text-xs uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
@@ -442,7 +482,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Customer Reviews Section */}
         <section className="bg-gradient-to-r from-[#062C22] to-[#041E18] border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-2xl space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-2xl md:text-3xl font-black text-white">VIP Member Reviews & Feedback</h2>
@@ -506,7 +545,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Official GLO & Imo Support Section */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-[#062C22] border border-amber-500/30 rounded-3xl p-6 flex items-center gap-5 shadow-xl">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 flex-shrink-0">
@@ -546,13 +584,10 @@ export default function App() {
             </div>
           </div>
         </section>
-
       </main>
 
-      {/* Footer & Authorized Partner Section (With Partner Avatar & Partner Logo beside Ariyan Choudhari) */}
       <footer className="bg-[#020C0A] border-t border-amber-500/30 mt-16 py-12 px-4">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          
           <div className="space-y-3 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-3">
               <div className="w-10 h-10 rounded-full border border-amber-400 p-0.5 bg-black/40 overflow-hidden">
@@ -581,11 +616,9 @@ export default function App() {
             <p>&copy; 2026 Thailand Government Lottery. All Rights Reserved.</p>
             <p className="text-[10px] text-gray-500">Official Secure Portal for Authorized International VIP Members.</p>
           </div>
-
         </div>
       </footer>
 
-      {/* Login Modal */}
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#062C22] border border-amber-500/50 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6 relative">
@@ -614,7 +647,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Payment Modal */}
       {isPaymentModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#062C22] border border-amber-500/50 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6 relative">
@@ -692,7 +724,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Lightbox Modal */}
       {zoomImage && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="relative max-w-3xl w-full bg-[#062C22] border border-amber-500/50 rounded-3xl p-4 overflow-hidden shadow-2xl">
@@ -717,7 +748,6 @@ export default function App() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

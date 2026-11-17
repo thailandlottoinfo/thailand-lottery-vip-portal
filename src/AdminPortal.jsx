@@ -31,7 +31,6 @@ export default function AdminPortal({
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => sessionStorage.getItem('glo_admin_auth') === 'true');
   const [activeAdminTab, setActiveAdminTab] = useState('upcoming');
 
-  // States for uploading new past winning paper directly via file
   const [newPastDate, setNewPastDate] = useState('');
   const [newPastImg, setNewPastImg] = useState('');
   const [newPast3up, setNewPast3up] = useState('');
@@ -118,7 +117,6 @@ export default function AdminPortal({
 
   return (
     <div className="min-h-screen bg-[#020E0B] text-gray-100 font-sans flex flex-col">
-      {/* Top Admin Header */}
       <header className="bg-[#062C22] border-b border-amber-500/40 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <Crown className="text-amber-400" size={28} />
@@ -144,9 +142,7 @@ export default function AdminPortal({
         </div>
       </header>
 
-      {/* Admin Body */}
       <div className="flex flex-col md:flex-row flex-grow max-w-7xl w-full mx-auto">
-        {/* Sidebar Navigation */}
         <aside className="w-full md:w-64 bg-[#041E18] border-b md:border-b-0 md:border-r border-amber-500/30 p-4 flex md:flex-col gap-2 overflow-x-auto">
           {[
             { id: 'upcoming', label: 'Upcoming & Pricing', icon: DollarSign },
@@ -169,10 +165,7 @@ export default function AdminPortal({
           })}
         </aside>
 
-        {/* Main Workspace */}
         <main className="flex-grow p-6 md:p-8 space-y-8 overflow-y-auto">
-          
-          {/* TAB 1: UPCOMING PAPER & PRICING */}
           {activeAdminTab === 'upcoming' && (
             <div className="space-y-6 max-w-2xl">
               <h2 className="text-2xl font-bold text-amber-300">Upcoming VIP Paper & Pricing</h2>
@@ -218,7 +211,6 @@ export default function AdminPortal({
             </div>
           )}
 
-          {/* TAB 2: PAYMENTS */}
           {activeAdminTab === 'payments' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-amber-300">Payment Verification Requests</h2>
@@ -253,7 +245,6 @@ export default function AdminPortal({
             </div>
           )}
 
-          {/* TAB 3: PAST WIN PROOFS (DIRECT UPLOAD ONLY) */}
           {activeAdminTab === 'past' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-amber-300">Past Winning Papers Archive</h2>
@@ -320,7 +311,6 @@ export default function AdminPortal({
             </div>
           )}
 
-          {/* TAB 4: REVIEWS */}
           {activeAdminTab === 'reviews' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-amber-300">Moderate Customer Reviews</h2>
@@ -348,7 +338,6 @@ export default function AdminPortal({
             </div>
           )}
 
-          {/* TAB 5: LOGIN HISTORY */}
           {activeAdminTab === 'logins' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -381,12 +370,10 @@ export default function AdminPortal({
             </div>
           )}
 
-          {/* TAB 6: LOGOS & SETTINGS (DIRECT IMAGE UPLOADS ONLY - NO URL FIELDS) */}
           {activeAdminTab === 'settings' && (
             <div className="space-y-6 max-w-2xl">
               <h2 className="text-2xl font-bold text-amber-300">Brand Logo, Partner Profile & Settings</h2>
               
-              {/* Top Header Thailand Government Lottery Logo Upload */}
               <div className="bg-[#041E18] border border-amber-500/30 rounded-2xl p-5 space-y-3">
                 <label className="block text-xs text-amber-300 font-bold">১. উপরে Thailand Government Lottery-এর লোগো আপলোড করুন</label>
                 <div className="flex items-center gap-4">
@@ -398,7 +385,6 @@ export default function AdminPortal({
                 </div>
               </div>
 
-              {/* Bottom Partner Avatar & Partner Logo Upload */}
               <div className="bg-[#041E18] border border-amber-500/30 rounded-2xl p-5 space-y-5">
                 <h3 className="text-xs text-amber-300 font-bold">২. নিচে আরিয়ান চৌধুরীর প্রোফাইল ছবি ও পাশের লোগো আপলোড করুন</h3>
                 
@@ -438,7 +424,6 @@ export default function AdminPortal({
                 </div>
               </div>
 
-              {/* Brand Title & Contact Details */}
               <div className="bg-[#041E18] border border-amber-500/30 rounded-2xl p-5 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
@@ -478,7 +463,6 @@ export default function AdminPortal({
               </button>
             </div>
           )}
-
         </main>
       </div>
     </div>
