@@ -13,3 +13,16 @@
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Mobile-first app wrapper styling */
+body {
+  background-color: #031410;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensures crisp rendering on mobile screens */
+* {
+  box-sizing: border-box;
+}
